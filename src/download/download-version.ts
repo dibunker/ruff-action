@@ -124,6 +124,7 @@ export async function resolveVersion(
   githubToken: string,
 ): Promise<string> {
   core.debug(`Resolving ${versionInput}...`);
+  core.debug('Hey this is new');
   const version =
     versionInput === "latest"
       ? await getLatestVersion(githubToken)
