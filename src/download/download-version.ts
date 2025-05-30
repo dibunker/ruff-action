@@ -10,6 +10,14 @@ import { validateChecksum } from "./checksum/checksum";
 import { Octokit } from "@octokit/core";
 import { paginateRest } from "@octokit/plugin-paginate-rest";
 import { restEndpointMethods } from "@octokit/plugin-rest-endpoint-methods";
+import { fetch as undiciFetch, ProxyAgent } from 'undici';
+
+const myFetch = (url, options) => {
+  return undiciFetch(url, {
+    ...options,
+    dispatcher: new ProxyAgent(process.env.HTTP_PROXY)
+  })
+}
 
 const PaginatingOctokit = Octokit.plugin(paginateRest, restEndpointMethods);
 
@@ -116,6 +124,7 @@ export async function resolveVersion(
   githubToken: string,
 ): Promise<string> {
   core.debug(`Resolving ${versionInput}...`);
+  core.debug('Hey this is new');
   const version =
     versionInput === "latest"
       ? await getLatestVersion(githubToken)
@@ -137,6 +146,7 @@ async function getAvailableVersions(githubToken: string): Promise<string[]> {
   try {
     const octokit = new PaginatingOctokit({
       auth: githubToken,
+      fetch: myFetch,
     });
     return await getReleaseTagNames(octokit);
   } catch (err) {
@@ -164,6 +174,7 @@ async function getReleaseTagNames(
 async function getLatestVersion(githubToken: string) {
   const octokit = new PaginatingOctokit({
     auth: githubToken,
+    fetch: myFetch,
   });
 
   let latestRelease: { tag_name: string } | undefined;

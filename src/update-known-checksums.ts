@@ -8,13 +8,22 @@ import * as semver from "semver";
 
 import { updateChecksums } from "./download/checksum/update-known-checksums";
 
+import { fetch as undiciFetch, ProxyAgent } from 'undici';
+
+const myFetch = (url, options) => {
+  return undiciFetch(url, {
+    ...options,
+    dispatcher: new ProxyAgent(process.env.HTTP_PROXY)
+  })
+}
+
 const PaginatingOctokit = Octokit.plugin(paginateRest, restEndpointMethods);
 
 async function run(): Promise<void> {
   const checksumFilePath = process.argv.slice(2)[0];
   const github_token = process.argv.slice(2)[1];
 
-  const octokit = new PaginatingOctokit({ auth: github_token });
+  const octokit = new PaginatingOctokit({ auth: github_token, fetch: myFetch });
 
   const response = await octokit.paginate(octokit.rest.repos.listReleases, {
     owner: OWNER,
