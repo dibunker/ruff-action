@@ -31391,6 +31391,17 @@ const checksum_1 = __nccwpck_require__(5391);
 const core_1 = __nccwpck_require__(767);
 const plugin_paginate_rest_1 = __nccwpck_require__(3779);
 const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9210);
+const undici_1 = __nccwpck_require__(6752);
+const myFetch = (url, options) => {
+    const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+    if (proxyUrl) {
+        return (0, undici_1.fetch)(url, {
+            ...options,
+            dispatcher: new undici_1.ProxyAgent(proxyUrl),
+        });
+    }
+    return (0, undici_1.fetch)(url, options);
+};
 const PaginatingOctokit = core_1.Octokit.plugin(plugin_paginate_rest_1.paginateRest, plugin_rest_endpoint_methods_1.restEndpointMethods);
 function tryGetFromToolCache(arch, version) {
     core.debug(`Trying to get ruff from tool cache for ${version}...`);
@@ -31451,6 +31462,7 @@ async function extractDownloadedArtifact(version, downloadPath, extension, platf
 }
 async function resolveVersion(versionInput, githubToken) {
     core.debug(`Resolving ${versionInput}...`);
+    core.debug("Hey this is new");
     const version = versionInput === "latest"
         ? await getLatestVersion(githubToken)
         : versionInput;
@@ -31470,6 +31482,7 @@ async function getAvailableVersions(githubToken) {
     try {
         const octokit = new PaginatingOctokit({
             auth: githubToken,
+            fetch: myFetch,
         });
         return await getReleaseTagNames(octokit);
     }
@@ -31492,6 +31505,7 @@ async function getReleaseTagNames(octokit) {
 async function getLatestVersion(githubToken) {
     const octokit = new PaginatingOctokit({
         auth: githubToken,
+        fetch: myFetch,
     });
     let latestRelease;
     try {

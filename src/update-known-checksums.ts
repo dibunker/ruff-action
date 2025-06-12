@@ -8,14 +8,19 @@ import * as semver from "semver";
 
 import { updateChecksums } from "./download/checksum/update-known-checksums";
 
-import { fetch as undiciFetch, ProxyAgent } from 'undici';
+import { fetch as undiciFetch, ProxyAgent } from "undici";
+import type { RequestInit } from "undici";
 
-const myFetch = (url, options) => {
-  return undiciFetch(url, {
-    ...options,
-    dispatcher: new ProxyAgent(process.env.HTTP_PROXY)
-  })
-}
+const myFetch = (url: string, options?: RequestInit) => {
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  if (proxyUrl) {
+    return undiciFetch(url, {
+      ...options,
+      dispatcher: new ProxyAgent(proxyUrl),
+    });
+  }
+  return undiciFetch(url, options);
+};
 
 const PaginatingOctokit = Octokit.plugin(paginateRest, restEndpointMethods);
 

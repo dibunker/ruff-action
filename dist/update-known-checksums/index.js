@@ -30616,11 +30616,22 @@ const plugin_rest_endpoint_methods_1 = __nccwpck_require__(9210);
 const constants_1 = __nccwpck_require__(6156);
 const semver = __importStar(__nccwpck_require__(9318));
 const update_known_checksums_1 = __nccwpck_require__(6182);
+const undici_1 = __nccwpck_require__(6752);
+const myFetch = (url, options) => {
+    const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+    if (proxyUrl) {
+        return (0, undici_1.fetch)(url, {
+            ...options,
+            dispatcher: new undici_1.ProxyAgent(proxyUrl),
+        });
+    }
+    return (0, undici_1.fetch)(url, options);
+};
 const PaginatingOctokit = core_1.Octokit.plugin(plugin_paginate_rest_1.paginateRest, plugin_rest_endpoint_methods_1.restEndpointMethods);
 async function run() {
     const checksumFilePath = process.argv.slice(2)[0];
     const github_token = process.argv.slice(2)[1];
-    const octokit = new PaginatingOctokit({ auth: github_token });
+    const octokit = new PaginatingOctokit({ auth: github_token, fetch: myFetch });
     const response = await octokit.paginate(octokit.rest.repos.listReleases, {
         owner: constants_1.OWNER,
         repo: constants_1.REPO,
