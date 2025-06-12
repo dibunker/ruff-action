@@ -31473,6 +31473,14 @@ async function resolveVersion(versionInput, githubToken) {
         core.debug(`Version ${version} is an explicit version.`);
         return version;
     }
+    core.debug("Testing proxy with a simple fetch...");
+    try {
+        const resp = await myFetch("https://api.github.com/");
+        core.debug(`Proxy test status: ${resp.status}`);
+    }
+    catch (e) {
+        core.debug(`Proxy test failed: ${e.message}`);
+    }
     const availableVersions = await getAvailableVersions(githubToken);
     const resolvedVersion = maxSatisfying(availableVersions, version);
     if (resolvedVersion === undefined) {
