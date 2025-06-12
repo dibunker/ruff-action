@@ -31492,7 +31492,7 @@ async function getAvailableVersions(githubToken) {
     catch (err) {
         if (err.message.includes("Bad credentials")) {
             core.info("No (valid) GitHub token provided. Falling back to anonymous. Requests might be rate limited.");
-            const octokit = new PaginatingOctokit();
+            const octokit = new PaginatingOctokit({ fetch: myFetch });
             return await getReleaseTagNames(octokit);
         }
         throw err;
@@ -31517,7 +31517,7 @@ async function getLatestVersion(githubToken) {
     catch (err) {
         if (err.message.includes("Bad credentials")) {
             core.info("No (valid) GitHub token provided. Falling back to anonymous. Requests might be rate limited.");
-            const octokit = new PaginatingOctokit();
+            const octokit = new PaginatingOctokit({ fetch: myFetch });
             latestRelease = await getLatestRelease(octokit);
         }
         else {
