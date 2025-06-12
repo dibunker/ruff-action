@@ -14,6 +14,7 @@ import type { RequestInit } from "undici";
 const myFetch = (url: string, options?: RequestInit) => {
   const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
   if (proxyUrl) {
+    core.debug(`Using proxy: ${proxyUrl}`);
     return undiciFetch(url, {
       ...options,
       dispatcher: new ProxyAgent(proxyUrl),

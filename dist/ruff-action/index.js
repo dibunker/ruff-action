@@ -31395,7 +31395,7 @@ const undici_1 = __nccwpck_require__(6752);
 const myFetch = (url, options) => {
     const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
     if (proxyUrl) {
-        core.debug("Proxy environment variable is set");
+        core.debug(`Using proxy: ${proxyUrl}`);
         return (0, undici_1.fetch)(url, {
             ...options,
             dispatcher: new undici_1.ProxyAgent(proxyUrl),
@@ -31463,7 +31463,9 @@ async function extractDownloadedArtifact(version, downloadPath, extension, platf
 }
 async function resolveVersion(versionInput, githubToken) {
     core.debug(`Resolving ${versionInput}...`);
-    core.debug("Hey this is new");
+    if (process.env.HTTPS_PROXY || process.env.HTTP_PROXY) {
+        core.debug("Proxy environment variable is set.");
+    }
     const version = versionInput === "latest"
         ? await getLatestVersion(githubToken)
         : versionInput;

@@ -30620,6 +30620,7 @@ const undici_1 = __nccwpck_require__(6752);
 const myFetch = (url, options) => {
     const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
     if (proxyUrl) {
+        core.debug(`Using proxy: ${proxyUrl}`);
         return (0, undici_1.fetch)(url, {
             ...options,
             dispatcher: new undici_1.ProxyAgent(proxyUrl),

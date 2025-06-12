@@ -16,7 +16,7 @@ import type { RequestInit } from "undici";
 const myFetch = (url: string, options?: RequestInit) => {
   const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
   if (proxyUrl) {
-    core.debug("Proxy environment variable is set");
+    core.debug(`Using proxy: ${proxyUrl}`);
     return undiciFetch(url, {
       ...options,
       dispatcher: new ProxyAgent(proxyUrl),
@@ -130,7 +130,9 @@ export async function resolveVersion(
   githubToken: string,
 ): Promise<string> {
   core.debug(`Resolving ${versionInput}...`);
-  core.debug("Hey this is new");
+  if (process.env.HTTPS_PROXY || process.env.HTTP_PROXY) {
+    core.debug("Proxy environment variable is set.");
+  }
   const version =
     versionInput === "latest"
       ? await getLatestVersion(githubToken)
